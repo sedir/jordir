@@ -1,0 +1,27 @@
+version: '3'
+services:
+  jordir_telegram:
+    image: jordir
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jordir_telegram
+    volumes:
+      - .:/app
+    restart: on-failure
+    tty: true
+    command: python telegram.py
+    environment:
+      TZ: "America/Recife"
+  jordir_scheduler:
+    image: jordir
+    container_name: jordir_scheduler
+    volumes:
+      - .:/app
+    restart: on-failure
+    command: python scheduler.py
+    tty: true
+    environment:
+      TZ: "America/Recife"
+    cap_add:
+      - SYS_ADMIN
