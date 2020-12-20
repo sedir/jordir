@@ -23,16 +23,26 @@ async def enviar_mensagem_no_grupo(mensagem):
 
 @dp.message_handler(commands=['verificar'])
 async def verificar(message: types.Message):
-    msg = await bot.send_message(message.chat.id, 'Verificando... ⌛︎')
+    msg = await bot.send_message(message.chat.id, f'Verificando... ⌛︎')
     try:
-        dados = await scraper.obter_dados()
+        tries = 0
+        dados = None
+        while tries < 3 and dados is None:
+            try:
+                tries += 1
+                msg = await msg.edit_text(message.chat.id, f'Verificando... ⌛︎ ({tries})')
+                dados = await scraper.obter_dados()
+            except:
+                if tries == 3:
+                    raise StopIteration
+
 
         if not dados:
             await msg.edit_text('Nada novo sob o sol 🤷')
         else:
             await msg.edit_text('Opa! 🚨 Tem mensagem de: '+', '.join(dados))
-    except:
-        await msg.edit_text('Deu treta, veja os logs e tente de novo 🚫')
+    except StopIteration:
+        await msg.edit_text('Deu treta, veja os logs 🚫')
 
 
 async def main():
